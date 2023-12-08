@@ -62,6 +62,8 @@ public class CommandLauncher {
             errorGobbler.start();
 
             Integer exitCode = p.waitFor();
+            outputGobbler.waitFor();
+            errorGobbler.waitFor();
             return ExecutionResults.builder().
                 exitCode(exitCode).
                 errorOutput(buildString(errorOutputStream.toByteArray())).
