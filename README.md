@@ -1,3 +1,5 @@
+[![.github/workflows/maven-publish.yml](https://github.com/jorgeb1980/lib-shell-commands/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/jorgeb1980/lib-shell-commands/actions/workflows/maven-publish.yml)
+
 # lib-shell-commands
 Small library trying to address some common trouble when launching shell commands in Java
 
