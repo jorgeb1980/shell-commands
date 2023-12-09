@@ -4,7 +4,6 @@
 name: Build, test and release to Github Packages
 
 on:
-  workflow_dispatch:
   release:
     types: [created]
 
