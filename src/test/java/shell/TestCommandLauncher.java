@@ -2,7 +2,8 @@ package shell;
 
 import java.io.File;
 
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -12,7 +13,7 @@ public class TestCommandLauncher {
 
     @DisabledOnOs({OS.WINDOWS})
     @Test
-    public void testLaunchUnixLikeShellCommand() {
+    public void testUnixLikeLaunchCommand() {
         var launcher = CommandLauncher.builder()
             .program("/bin/sh")
             .parameter("-c")
@@ -26,14 +27,38 @@ public class TestCommandLauncher {
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
+    }
+
+    @DisabledOnOs({OS.WINDOWS})
+    @Test
+    public void testUnixLikeErrorConditions() {
+        assertThrows(ShellException.class, () -> {
+            CommandLauncher.builder()
+                .program("/bin/sh")
+                .parameter("-c")
+                .parameter("ls")
+                .cwd(new File("/this/directory/should/not/exist"))
+                .parameter("-lah")
+                .build().launch();
+        });
+        assertThrows(ShellException.class, () -> {
+            CommandLauncher.builder()
+                .program("/bin/sh")
+                .parameter("-c")
+                .parameter("ls")
+                // Should exist, but not a directory
+                .cwd(new File("/bin/sh"))
+                .parameter("-lah")
+                .build().launch();
+        });
     }
 
 
     @EnabledOnOs({OS.WINDOWS})
     @Test
-    public void testLaunchWindowsShellCommand() {
+    public void testWindowsLaunchCommand() {
         var launcher = CommandLauncher.builder()
             .program("cmd.exe")
             .parameter("/c")
@@ -47,20 +72,39 @@ public class TestCommandLauncher {
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
+    }
+
+    @EnabledOnOs({OS.WINDOWS})
+    @Test
+    public void testWindowsErrorConditions() {
+        assertThrows(ShellException.class, () -> {
+            CommandLauncher.builder()
+                .program("cmd.exe")
+                .parameter("/c")
+                .parameter("dir")
+                .parameter("/A")
+                .cwd(new File("c:\\this\\directory\\should\\not\\exist"))
+                .build().launch();
+        });
+        assertThrows(ShellException.class, () -> {
+            CommandLauncher.builder()
+                .program("cmd.exe")
+                .parameter("/c")
+                .parameter("dir")
+                .parameter("/A")
+                // Should exist, but not a directory
+                .cwd(new File("c:\\windows\\explorer.exe"))
+                .build().launch();
+        });
     }
 
     @Test
     public void testNonNunll() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             CommandLauncher.builder()
-                .program("cmd.exe")
-                .parameter("/c")
-                .parameter("dir").build();
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
-            CommandLauncher.builder()
+                // missing program
                 .parameter("cmd.exe")
                 .parameter("/c")
                 .parameter("dir")

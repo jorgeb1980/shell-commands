@@ -49,7 +49,7 @@ var launcher = CommandLauncher.builder()
     .program("unrar")
     .parameter("x")
     .parameter("/path/to/some/file.rar")
-    .cwd(new File("c:\\some\\directory"))
+    .cwd(new File("/path/to/target/directory"))
     .build();
 try {
     var results = launcher.launch();

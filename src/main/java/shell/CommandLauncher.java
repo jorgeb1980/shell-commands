@@ -2,6 +2,7 @@ package shell;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import static java.lang.String.format;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,6 @@ public class CommandLauncher {
     private List<String> parameters;
     @Singular
     private List<String> envs;
-    @NonNull
     private File cwd;
 
     private String buildString(byte[] content) {
@@ -45,6 +45,15 @@ public class CommandLauncher {
                     else return s;
                 }).collect(Collectors.toList())
             );
+            if (cwd == null) cwd = new File(System.getProperty("user.dir"));
+            else {
+                // Some sanity check on cwd
+                if (!cwd.exists()) {
+                    throw new Exception(format("Directory %s does not exist", cwd));
+                } else if (!cwd.isDirectory()) {
+                    throw new Exception(format("%s is not a directory", cwd));
+                }
+            }
             pb.directory(cwd);
             if (!envs.isEmpty()) {
                 var environment = pb.environment();
