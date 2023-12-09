@@ -13,7 +13,7 @@ public class TestCommandLauncher {
     @DisabledOnOs({OS.WINDOWS})
     @Test
     public void testLaunchUnixLikeShellCommand() {
-         var launcher = CommandLauncher.builder()
+        var launcher = CommandLauncher.builder()
             .program("/bin/sh")
             .parameter("-c")
             .parameter("ls")
@@ -38,6 +38,7 @@ public class TestCommandLauncher {
             .program("cmd.exe")
             .parameter("/c")
             .parameter("dir")
+            .parameter("/A")
             .cwd(new File(System.getProperty("java.io.tmpdir")))
             .build();
         try {

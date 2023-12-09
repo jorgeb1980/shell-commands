@@ -8,11 +8,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jodd.io.StreamGobbler;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 
 @Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommandLauncher {
     
     private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
