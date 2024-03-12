@@ -4,8 +4,9 @@ package shell;
 import lombok.*;
 
 import java.io.File;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -16,14 +17,14 @@ public class ShellCommandLauncher {
     private String command;
     @Singular
     private List<String> parameters;
-    private List<String[]> envs;
+    private Map<String, String> envs;
     private File cwd;
 
     // Customization of lombok builder leads to certain code repetition I have not been able to solve
     public static class ShellCommandLauncherBuilder {
         public ShellCommandLauncherBuilder env(String env, String value) {
-            if (envs == null) envs = new LinkedList<>();
-            envs.add(new String[]{env, value});
+            if (envs == null) envs = new HashMap<>();
+            envs.put(env, value);
             return this;
         }
     }

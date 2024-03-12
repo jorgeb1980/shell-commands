@@ -5,8 +5,10 @@ import java.io.File;
 import static java.lang.String.format;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jodd.io.StreamGobbler;
@@ -17,22 +19,24 @@ import lombok.NonNull;
 import lombok.Singular;
 
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommandLauncher {
+
+    protected CommandLauncher() {}
     
-    private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+    protected final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
     @NonNull
     private String program;
     @Singular
-    private List<String> parameters;
-    private List<String[]> envs;
-    private File cwd;
+    protected List<String> parameters;
+    private Map<String, String> envs;
+    protected File cwd;
 
     // Customization of lombok builder leads to certain code repetition I have not been able to solve
     public static class CommandLauncherBuilder {
         public CommandLauncher.CommandLauncherBuilder env(String env, String value) {
-            if (envs == null) envs = new LinkedList<>();
-            envs.add(new String[]{env, value});
+            if (envs == null) envs = new HashMap<>();
+            envs.put(env, value);
             return this;
         }
     }
@@ -66,11 +70,7 @@ public class CommandLauncher {
             pb.directory(cwd);
             if (envs != null && !envs.isEmpty()) {
                 var environment = pb.environment();
-                for (var envVar: envs) {
-                    if (envVar.length == 2 && !envVar[0].isBlank() && !envVar[1].isBlank()) {
-                        environment.put(envVar[0], envVar[1]);
-                    }
-                }
+                environment.putAll(envs);
             }
             ByteArrayOutputStream standardOutputStream = new ByteArrayOutputStream();
             ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
