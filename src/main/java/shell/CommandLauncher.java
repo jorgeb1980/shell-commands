@@ -21,8 +21,6 @@ import lombok.Singular;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommandLauncher {
-
-    protected CommandLauncher() {}
     
     protected final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
     @NonNull
