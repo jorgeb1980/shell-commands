@@ -7,8 +7,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestShellCommandLauncher {
 
@@ -98,5 +97,35 @@ public class TestShellCommandLauncher {
                 .cwd(new File(System.getProperty("java.io.tmpdir")))
                 .build();
         });
+    }
+
+    private void testEnvVariables(String commandName) {
+        var launcher = ShellCommandLauncher.builder()
+            .command(commandName)
+            .env("SOME_VARIABLE", "VALUE_1")
+            .env("SOME_OTHER_VARIABLE", "VALUE_2")
+            .build();
+        try {
+            var results = launcher.launch();
+            var variables = new EnvVariablesParser().parse(results.getStandardOutput());
+            assertTrue(variables.containsKey("SOME_VARIABLE"));
+            assertEquals("VALUE_1", variables.get("SOME_VARIABLE"));
+            assertTrue(variables.containsKey("SOME_OTHER_VARIABLE"));
+            assertEquals("VALUE_2", variables.get("SOME_OTHER_VARIABLE"));
+        } catch(ShellException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+    @EnabledOnOs({OS.WINDOWS})
+    @Test
+    public void testWindowsEnvVars() {
+        testEnvVariables("set");
+    }
+
+    @DisabledOnOs({OS.WINDOWS})
+    @Test
+    public void testUnixLikeEnvVars() {
+        testEnvVariables("env");
     }
 }
