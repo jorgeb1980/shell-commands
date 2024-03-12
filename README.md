@@ -7,10 +7,8 @@ Small library trying to address some common trouble when launching shell command
 
 Launch "ls -lh" in a Unix-like environment
 ```java
-var launcher = CommandLauncher.builder()
-    .program("/bin/sh")
-    .parameter("-c")
-    .parameter("ls")
+var launcher = ShellCommandLauncher.builder()
+    .command("ls")
     .cwd(new File("/some/directory"))
     .parameter("-lah")
     .build();
@@ -27,10 +25,8 @@ try {
 
 Launch "dir /A" in a Windows environment
 ```java
-var launcher = CommandLauncher.builder()
-    .program("cmd.exe")
-    .parameter("/c")
-    .parameter("dir")
+var launcher = ShellCommandLauncher.builder()
+    .command("dir")
     .parameter("/A")
     .cwd(new File("c:\\some\\directory"))
     .build();
