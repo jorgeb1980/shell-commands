@@ -5,7 +5,7 @@ Small library trying to address some common trouble when launching shell command
 Main features:
 - General command launcher and specific shell command launcher
 - Hides OS specific considerations
-- Retrieval of the output providing an implementation of classical stream gobbler problem.  Some docs on this common issue in
+- Retrieval of the output using an implementation of stream gobbler to solve race conditions.  Some docs on this common issue in
   - https://stackoverflow.com/questions/10031368/process-never-ends-with-processbuilder
   - https://users.tomcat.apache.narkive.com/bTX4WvSd/runtime-getruntime-exec-problem
   - https://coderanch.com/t/605311/java/race-condition-Runtime-exec
