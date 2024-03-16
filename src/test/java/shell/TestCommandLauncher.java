@@ -26,8 +26,7 @@ public class TestCommandLauncher {
             System.out.println(results.getExitCode());
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 
@@ -71,8 +70,7 @@ public class TestCommandLauncher {
             System.out.println(results.getExitCode());
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 

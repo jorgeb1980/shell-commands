@@ -24,8 +24,7 @@ public class TestShellCommandLauncher {
             System.out.println(results.getExitCode());
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 
@@ -63,8 +62,7 @@ public class TestShellCommandLauncher {
             System.out.println(results.getExitCode());
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 
@@ -113,8 +111,7 @@ public class TestShellCommandLauncher {
             assertTrue(variables.containsKey("SOME_OTHER_VARIABLE"));
             assertEquals("VALUE_2", variables.get("SOME_OTHER_VARIABLE"));
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
     @EnabledOnOs({OS.WINDOWS})

@@ -1,50 +1,39 @@
 package shell;
 
+import jodd.io.StreamGobbler;
+import lombok.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import static java.lang.String.format;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jodd.io.StreamGobbler;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Singular;
+import static java.lang.String.format;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommandLauncher {
-    
-    protected final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
     @NonNull
     private String program;
+    protected final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
     @Singular
     protected List<String> parameters;
+    @Singular
     private Map<String, String> envs;
     protected File cwd;
-
-    // Customization of lombok builder leads to certain code repetition I have not been able to solve
-    public static class CommandLauncherBuilder {
-        public CommandLauncher.CommandLauncherBuilder env(String env, String value) {
-            if (envs == null) envs = new HashMap<>();
-            envs.put(env, value);
-            return this;
-        }
-    }
 
     private String buildString(byte[] content) {
         return new String(content, isWindows ? Charset.forName("cp1252") : StandardCharsets.UTF_8);
     }
 
     public ExecutionResults launch() throws ShellException {
-        try {            
+        try {
             List<String> command = new LinkedList<>();
             command.add(program);
             command.addAll(parameters);
@@ -60,9 +49,9 @@ public class CommandLauncher {
             else {
                 // Some sanity check on cwd
                 if (!cwd.exists()) {
-                    throw new Exception(format("Directory %s does not exist", cwd));
+                    throw new ShellException(format("Directory %s does not exist", cwd));
                 } else if (!cwd.isDirectory()) {
-                    throw new Exception(format("%s is not a directory", cwd));
+                    throw new ShellException(format("%s is not a directory", cwd));
                 }
             }
             pb.directory(cwd);
@@ -86,7 +75,7 @@ public class CommandLauncher {
                 errorOutput(buildString(errorOutputStream.toByteArray())).
                 standardOutput(buildString(standardOutputStream.toByteArray())).
                 build();
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             throw new ShellException(e);
         }
     }
