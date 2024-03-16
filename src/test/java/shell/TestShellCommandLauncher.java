@@ -52,7 +52,7 @@ public class TestShellCommandLauncher {
             testSpacesTmpDir.deleteOnExit();
 
             // This will create something like '/tmp/test_spaces_whatever1234/child directory with spaces/some file'
-            //  or something similar inside c:\windows\temp
+            //  or something similar inside c:\Windows\Temp, c:\Users\whatever\AppData\Local\Temp or wherever it sees fit
             File childWithSpaces = new File(testSpacesTmpDir, CHILD_DIRECTORY_WITH_SPACES);
             childWithSpaces.mkdir();
             File someFile = new File(childWithSpaces, SOME_FILE);
@@ -64,6 +64,7 @@ public class TestShellCommandLauncher {
                 .cwd(testSpacesTmpDir)
                 .build().launch();
 
+            assertEquals(0, results.getExitCode());
             assertTrue(results.getStandardOutput().contains(SOME_FILE));
 
         } catch (IOException | ShellException e) {
