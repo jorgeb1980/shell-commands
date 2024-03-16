@@ -24,8 +24,8 @@ public class TestShellCommandLauncher {
             .build();
         try {
             var results = launcher.launch();
-            System.out.println(results.getExitCode());
-            System.out.println(results.getStandardOutput());
+            assertEquals(0, results.getExitCode());
+            assertNotNull(results.getStandardOutput());
         } catch(ShellException e) {
             fail(e);
         }
@@ -107,8 +107,8 @@ public class TestShellCommandLauncher {
             .build();
         try {
             var results = launcher.launch();
-            System.out.println(results.getExitCode());
-            System.out.println(results.getStandardOutput());
+            assertEquals(0, results.getExitCode());
+            assertNotNull(results.getStandardOutput());
         } catch(ShellException e) {
             fail(e);
         }
