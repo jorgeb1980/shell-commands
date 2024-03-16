@@ -166,6 +166,7 @@ public class TestShellCommandLauncher {
             fail(e);
         }
     }
+    
     @EnabledOnOs({OS.WINDOWS})
     @Test
     public void testWindowsEnvVars() {
