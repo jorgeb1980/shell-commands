@@ -6,7 +6,7 @@ import java.util.Map;
 public class EnvVariablesParser {
 
     // parses the output of set or env
-    public Map<String, String> parse(String output) {
+    public Map<String, String> parseAsMap(String output) {
         var ret = new HashMap<String, String>();
         output.lines().forEach(s -> {
             if (s.contains("=")) {

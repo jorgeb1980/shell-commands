@@ -7,13 +7,14 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import static shell.OSDetection.isWindows;
+
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ShellCommandLauncher {
 
     @NonNull
     private String command;
-    private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
     @Singular
     private List<String> parameters;
     @Singular
@@ -22,7 +23,7 @@ public class ShellCommandLauncher {
 
     public ExecutionResults launch() throws ShellException {
         var builder = CommandLauncher.builder();
-        if (isWindows) {
+        if (isWindows()) {
             builder.program("cmd.exe")
                 .parameter("/c")
                 .parameter(command);

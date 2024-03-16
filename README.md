@@ -9,7 +9,7 @@ Main features:
   - https://stackoverflow.com/questions/10031368/process-never-ends-with-processbuilder
   - https://users.tomcat.apache.narkive.com/bTX4WvSd/runtime-getruntime-exec-problem
   - https://coderanch.com/t/605311/java/race-condition-Runtime-exec
-- Hides management of spaces, etc.
+- Hides management of blanks, etc.
 
 # Samples
 

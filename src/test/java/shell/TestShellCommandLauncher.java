@@ -33,35 +33,35 @@ public class TestShellCommandLauncher {
 
     @DisabledOnOs({OS.WINDOWS})
     @Test
-    public void testSpaceInArgumentsUnixLike() {
-        testSpaceInArguments("ls");
+    public void testBlanksInArgumentsUnixLike() {
+        testBlanksInArguments("ls");
     }
 
     @EnabledOnOs({OS.WINDOWS})
     @Test
-    public void testSpaceInArgumentsWindows() {
-        testSpaceInArguments("dir");
+    public void testBlanksInArgumentsWindows() {
+        testBlanksInArguments("dir");
     }
 
-    private void testSpaceInArguments(String command) {
-        File testSpacesTmpDir = null;
-        final String CHILD_DIRECTORY_WITH_SPACES = "child directory with spaces";
-        final String SOME_FILE = "some file";
+    private void testBlanksInArguments(String command) {
+        File testBlanksTmpDir = null;
+        final var CHILD_DIRECTORY_WITH_BLANKS = "child directory with blanks";
+        final var SOME_FILE = "some file";
         try {
-            testSpacesTmpDir = Files.createTempDirectory("test_spaces").toFile();
-            testSpacesTmpDir.deleteOnExit();
+            testBlanksTmpDir = Files.createTempDirectory("test_spaces").toFile();
+            testBlanksTmpDir.deleteOnExit();
 
-            // This will create something like '/tmp/test_spaces_whatever1234/child directory with spaces/some file'
+            // This will create something like '/tmp/test_spaces_whatever1234/child directory with blanks/some file'
             //  or something similar inside c:\Windows\Temp, c:\Users\whatever\AppData\Local\Temp or wherever it sees fit
-            File childWithSpaces = new File(testSpacesTmpDir, CHILD_DIRECTORY_WITH_SPACES);
-            childWithSpaces.mkdir();
-            File someFile = new File(childWithSpaces, SOME_FILE);
+            var childDirWithBlanks = new File(testBlanksTmpDir, CHILD_DIRECTORY_WITH_BLANKS);
+            childDirWithBlanks.mkdir();
+            var someFile = new File(childDirWithBlanks, SOME_FILE);
             someFile.createNewFile();
 
             var results = ShellCommandLauncher.builder()
                 .command(command)
-                .parameter(CHILD_DIRECTORY_WITH_SPACES)
-                .cwd(testSpacesTmpDir)
+                .parameter(CHILD_DIRECTORY_WITH_BLANKS)
+                .cwd(testBlanksTmpDir)
                 .build().launch();
 
             assertEquals(0, results.getExitCode());
@@ -70,8 +70,8 @@ public class TestShellCommandLauncher {
         } catch (IOException | ShellException e) {
             fail(e);
         } finally {
-            if (testSpacesTmpDir != null && testSpacesTmpDir.exists() && testSpacesTmpDir.isDirectory()) {
-                try { FileUtil.deleteDir(testSpacesTmpDir); } catch (IOException ioe) { fail(ioe); }
+            if (testBlanksTmpDir != null && testBlanksTmpDir.exists() && testBlanksTmpDir.isDirectory()) {
+                try { FileUtil.deleteDir(testBlanksTmpDir); } catch (IOException ioe) { fail(ioe); }
             }
         }
     }
@@ -146,18 +146,22 @@ public class TestShellCommandLauncher {
     }
 
     private void testEnvVariables(String commandName) {
+        final var SOME_VARIABLE = "SOME_VARIABLE";
+        final var SOME_OTHER_VARIABLE = "SOME_OTHER_VARIABLE";
+        final var VALUE_1 = "abcd1";
+        final var VALUE_2 = "a b c d 2";
         var launcher = ShellCommandLauncher.builder()
             .command(commandName)
-            .env("SOME_VARIABLE", "VALUE_1")
-            .env("SOME_OTHER_VARIABLE", "VALUE_2")
+            .env(SOME_VARIABLE, VALUE_1)
+            .env(SOME_OTHER_VARIABLE, VALUE_2)
             .build();
         try {
             var results = launcher.launch();
-            var variables = new EnvVariablesParser().parse(results.getStandardOutput());
-            assertTrue(variables.containsKey("SOME_VARIABLE"));
-            assertEquals("VALUE_1", variables.get("SOME_VARIABLE"));
-            assertTrue(variables.containsKey("SOME_OTHER_VARIABLE"));
-            assertEquals("VALUE_2", variables.get("SOME_OTHER_VARIABLE"));
+            var variables = new EnvVariablesParser().parseAsMap(results.getStandardOutput());
+            assertTrue(variables.containsKey(SOME_VARIABLE));
+            assertEquals(VALUE_1, variables.get(SOME_VARIABLE));
+            assertTrue(variables.containsKey(SOME_OTHER_VARIABLE));
+            assertEquals(VALUE_2, variables.get(SOME_OTHER_VARIABLE));
         } catch(ShellException e) {
             fail(e);
         }

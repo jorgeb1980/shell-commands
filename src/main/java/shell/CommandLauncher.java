@@ -11,9 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static shell.OSDetection.isWindows;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,7 +21,6 @@ public class CommandLauncher {
 
     @NonNull
     private String program;
-    protected final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
     @Singular
     protected List<String> parameters;
     @Singular
@@ -29,7 +28,7 @@ public class CommandLauncher {
     protected File cwd;
 
     private String buildString(byte[] content) {
-        return new String(content, isWindows ? Charset.forName("cp1252") : StandardCharsets.UTF_8);
+        return new String(content, isWindows() ? Charset.forName("cp1252") : StandardCharsets.UTF_8);
     }
 
     public ExecutionResults launch() throws ShellException {
@@ -37,7 +36,7 @@ public class CommandLauncher {
             List<String> command = new LinkedList<>();
             command.add(program);
             command.addAll(parameters);
-            ProcessBuilder pb = new ProcessBuilder(command);
+            var pb = new ProcessBuilder(command);
             if (cwd == null) cwd = new File(System.getProperty("user.dir"));
             else {
                 // Some sanity check on cwd
@@ -52,15 +51,15 @@ public class CommandLauncher {
                 var environment = pb.environment();
                 environment.putAll(envs);
             }
-            ByteArrayOutputStream standardOutputStream = new ByteArrayOutputStream();
-            ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
-            Process p = pb.start();
-            StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), standardOutputStream);
+            var standardOutputStream = new ByteArrayOutputStream();
+            var errorOutputStream = new ByteArrayOutputStream();
+            var p = pb.start();
+            var outputGobbler = new StreamGobbler(p.getInputStream(), standardOutputStream);
             outputGobbler.start();
-            StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), errorOutputStream);
+            var errorGobbler = new StreamGobbler(p.getErrorStream(), errorOutputStream);
             errorGobbler.start();
 
-            Integer exitCode = p.waitFor();
+            var exitCode = p.waitFor();
             outputGobbler.waitFor();
             errorGobbler.waitFor();
             return ExecutionResults.builder().
