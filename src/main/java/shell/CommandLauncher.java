@@ -1,79 +1,65 @@
 package shell;
 
+import jodd.io.StreamGobbler;
+import lombok.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import static java.lang.String.format;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import jodd.io.StreamGobbler;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Singular;
+import static java.lang.String.format;
+import static shell.OSDetection.isWindows;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommandLauncher {
-    
-    private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+public final class CommandLauncher {
+
     @NonNull
     private String program;
     @Singular
     private List<String> parameters;
     @Singular
-    private List<String> envs;
+    private Map<String, String> envs;
     private File cwd;
 
     private String buildString(byte[] content) {
-        return new String(content, isWindows ? Charset.forName("cp1252") : Charset.forName("UTF-8"));
+        return new String(content, isWindows() ? Charset.forName("cp1252") : StandardCharsets.UTF_8);
     }
 
     public ExecutionResults launch() throws ShellException {
-        try {            
+        try {
             List<String> command = new LinkedList<>();
             command.add(program);
             command.addAll(parameters);
-
-            ProcessBuilder pb = new ProcessBuilder(
-                command.stream().map(s -> {
-                    if (s.contains(" ")) 
-                        return "\"" + s + "\""; 
-                    else return s;
-                }).collect(Collectors.toList())
-            );
+            var pb = new ProcessBuilder(command);
             if (cwd == null) cwd = new File(System.getProperty("user.dir"));
             else {
                 // Some sanity check on cwd
                 if (!cwd.exists()) {
-                    throw new Exception(format("Directory %s does not exist", cwd));
+                    throw new ShellException(format("Directory %s does not exist", cwd));
                 } else if (!cwd.isDirectory()) {
-                    throw new Exception(format("%s is not a directory", cwd));
+                    throw new ShellException(format("%s is not a directory", cwd));
                 }
             }
             pb.directory(cwd);
-            if (!envs.isEmpty()) {
+            if (envs != null && !envs.isEmpty()) {
                 var environment = pb.environment();
-                for (var envVar: envs) {
-                    // Will only work if the env has the format KEY=VALUE
-                    String[] parts = envVar.split("=");
-                    if (parts.length == 2 && !parts[0].isBlank() && !parts[1].isBlank()) {
-                        environment.put(parts[0], parts[1]);
-                    }
-                }
+                environment.putAll(envs);
             }
-            ByteArrayOutputStream standardOutputStream = new ByteArrayOutputStream();
-            ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
-            Process p = pb.start();
-            StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), standardOutputStream);
+            var standardOutputStream = new ByteArrayOutputStream();
+            var errorOutputStream = new ByteArrayOutputStream();
+            var p = pb.start();
+            var outputGobbler = new StreamGobbler(p.getInputStream(), standardOutputStream);
             outputGobbler.start();
-            StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), errorOutputStream);
+            var errorGobbler = new StreamGobbler(p.getErrorStream(), errorOutputStream);
             errorGobbler.start();
 
-            Integer exitCode = p.waitFor();
+            var exitCode = p.waitFor();
             outputGobbler.waitFor();
             errorGobbler.waitFor();
             return ExecutionResults.builder().
@@ -81,7 +67,7 @@ public class CommandLauncher {
                 errorOutput(buildString(errorOutputStream.toByteArray())).
                 standardOutput(buildString(standardOutputStream.toByteArray())).
                 build();
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             throw new ShellException(e);
         }
     }

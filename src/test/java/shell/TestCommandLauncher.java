@@ -2,12 +2,12 @@ package shell;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCommandLauncher {
 
@@ -15,19 +15,18 @@ public class TestCommandLauncher {
     @Test
     public void testUnixLikeLaunchCommand() {
         var launcher = CommandLauncher.builder()
-            .program("/bin/sh")
-            .parameter("-c")
+            .program("/usr/bin/env")
+            .parameter("--")
             .parameter("ls")
             .cwd(new File(System.getProperty("java.io.tmpdir")))
             .parameter("-lah")
             .build();
         try {
             var results = launcher.launch();
-            System.out.println(results.getExitCode());
-            System.out.println(results.getStandardOutput());
+            assertEquals(0, results.getExitCode());
+            assertNotNull(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 
@@ -36,8 +35,8 @@ public class TestCommandLauncher {
     public void testUnixLikeErrorConditions() {
         assertThrows(ShellException.class, () -> {
             CommandLauncher.builder()
-                .program("/bin/sh")
-                .parameter("-c")
+                .program("/usr/bin/env")
+                .parameter("--")
                 .parameter("ls")
                 .cwd(new File("/this/directory/should/not/exist"))
                 .parameter("-lah")
@@ -45,8 +44,8 @@ public class TestCommandLauncher {
         });
         assertThrows(ShellException.class, () -> {
             CommandLauncher.builder()
-                .program("/bin/sh")
-                .parameter("-c")
+                .program("/usr/bin/env")
+                .parameter("--")
                 .parameter("ls")
                 // Should exist, but not a directory
                 .cwd(new File("/bin/sh"))
@@ -68,11 +67,10 @@ public class TestCommandLauncher {
             .build();
         try {
             var results = launcher.launch();
-            System.out.println(results.getExitCode());
-            System.out.println(results.getStandardOutput());
+            assertEquals(0, results.getExitCode());
+            assertNotNull(results.getStandardOutput());
         } catch(ShellException e) {
-            e.printStackTrace();
-            fail();
+            fail(e);
         }
     }
 
@@ -101,7 +99,7 @@ public class TestCommandLauncher {
     }
 
     @Test
-    public void testNonNunll() {
+    public void testNonNull() {
         assertThrows(NullPointerException.class, () -> {
             CommandLauncher.builder()
                 // missing program
