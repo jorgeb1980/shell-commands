@@ -11,7 +11,7 @@ import static shell.OSDetection.isWindows;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ShellCommandLauncher {
+public final class ShellCommandLauncher {
 
     @NonNull
     private String command;

@@ -16,16 +16,16 @@ import static java.lang.String.format;
 import static shell.OSDetection.isWindows;
 
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommandLauncher {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public final class CommandLauncher {
 
     @NonNull
     private String program;
     @Singular
-    protected List<String> parameters;
+    private List<String> parameters;
     @Singular
     private Map<String, String> envs;
-    protected File cwd;
+    private File cwd;
 
     private String buildString(byte[] content) {
         return new String(content, isWindows() ? Charset.forName("cp1252") : StandardCharsets.UTF_8);
