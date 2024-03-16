@@ -27,11 +27,12 @@ public class ShellCommandLauncher {
                 .parameter("/c")
                 .parameter(command);
         } else {
-            builder.program("/bin/sh")
-                .parameter("-c")
+            builder.program("/usr/bin/env")
+                .parameter("--")
                 .parameter(command);
         }
-        builder.parameters(parameters).envs(envs).cwd(cwd);
+        parameters.forEach(builder::parameter);
+        builder.envs(envs).cwd(cwd);
         return builder.build().launch();
     }
 }

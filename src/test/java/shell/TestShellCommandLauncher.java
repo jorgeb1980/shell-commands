@@ -1,11 +1,14 @@
 package shell;
 
+import jodd.io.FileUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +28,50 @@ public class TestShellCommandLauncher {
             System.out.println(results.getStandardOutput());
         } catch(ShellException e) {
             fail(e);
+        }
+    }
+
+    @DisabledOnOs({OS.WINDOWS})
+    @Test
+    public void testSpaceInArgumentsUnixLike() {
+        testSpaceInArguments("ls");
+    }
+
+    @EnabledOnOs({OS.WINDOWS})
+    @Test
+    public void testSpaceInArgumentsWindows() {
+        testSpaceInArguments("dir");
+    }
+
+    private void testSpaceInArguments(String command) {
+        File testSpacesTmpDir = null;
+        final String CHILD_DIRECTORY_WITH_SPACES = "child directory with spaces";
+        final String SOME_FILE = "some file";
+        try {
+            testSpacesTmpDir = Files.createTempDirectory("test_spaces").toFile();
+            testSpacesTmpDir.deleteOnExit();
+
+            // This will create something like '/tmp/test_spaces_whatever1234/child directory with spaces/some file'
+            //  or something similar inside c:\windows\temp
+            File childWithSpaces = new File(testSpacesTmpDir, CHILD_DIRECTORY_WITH_SPACES);
+            childWithSpaces.mkdir();
+            File someFile = new File(childWithSpaces, SOME_FILE);
+            someFile.createNewFile();
+
+            var results = ShellCommandLauncher.builder()
+                .command(command)
+                .parameter(CHILD_DIRECTORY_WITH_SPACES)
+                .cwd(testSpacesTmpDir)
+                .build().launch();
+
+            assertTrue(results.getStandardOutput().contains(SOME_FILE));
+
+        } catch (IOException | ShellException e) {
+            fail(e);
+        } finally {
+            if (testSpacesTmpDir != null && testSpacesTmpDir.exists() && testSpacesTmpDir.isDirectory()) {
+                try { FileUtil.deleteDir(testSpacesTmpDir); } catch (IOException ioe) { fail(ioe); }
+            }
         }
     }
 

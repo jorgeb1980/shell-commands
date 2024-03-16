@@ -9,6 +9,7 @@ Main features:
   - https://stackoverflow.com/questions/10031368/process-never-ends-with-processbuilder
   - https://users.tomcat.apache.narkive.com/bTX4WvSd/runtime-getruntime-exec-problem
   - https://coderanch.com/t/605311/java/race-condition-Runtime-exec
+- Hides management of spaces, etc.
 
 # Samples
 
@@ -21,10 +22,12 @@ var launcher = ShellCommandLauncher.builder()
     .build();
 try {
     var results = launcher.launch();
+    // Report results
+    System.out.println(results.getStandardOutput());
     if (results.getExitCode() == 0)
-        System.out.println(results.getStandardOutput());
-    else
-        System.err.println(results.getErrorOutput());
+        System.out.println("Great success!");
+    else System.err.printf("Something went wrong: %d%n", results.getExitCode());
+    if (results.getErrorOutput() != null) System.err.println(results.getErrorOutput());
 } catch(ShellException e) {
     e.printStackTrace();
 }
@@ -39,10 +42,7 @@ var launcher = ShellCommandLauncher.builder()
     .build();
 try {
     var results = launcher.launch();
-    if (results.getExitCode() == 0)
-        System.out.println(results.getStandardOutput());
-    else
-        System.err.println(results.getErrorOutput());
+    // Report results...
 } catch(ShellException e) {
     e.printStackTrace();
 }
@@ -58,10 +58,7 @@ var launcher = CommandLauncher.builder()
     .build();
 try {
     var results = launcher.launch();
-    if (results.getExitCode() == 0)
-        System.out.println(results.getStandardOutput());
-    else
-        System.err.println(results.getErrorOutput());
+    // Report results...
 } catch(ShellException e) {
     e.printStackTrace();
 }
@@ -78,10 +75,7 @@ var launcher = CommandLauncher.builder()
     .build();
 try {
     var results = launcher.launch();
-    if (results.getExitCode() == 0)
-        System.out.println(results.getStandardOutput());
-    else
-        System.err.println(results.getErrorOutput());
+    // Report results...
 } catch(ShellException e) {
     e.printStackTrace();
 }

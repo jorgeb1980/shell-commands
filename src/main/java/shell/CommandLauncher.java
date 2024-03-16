@@ -37,14 +37,7 @@ public class CommandLauncher {
             List<String> command = new LinkedList<>();
             command.add(program);
             command.addAll(parameters);
-
-            ProcessBuilder pb = new ProcessBuilder(
-                command.stream().map(s -> {
-                    if (s.contains(" ")) 
-                        return "\"" + s + "\""; 
-                    else return s;
-                }).collect(Collectors.toList())
-            );
+            ProcessBuilder pb = new ProcessBuilder(command);
             if (cwd == null) cwd = new File(System.getProperty("user.dir"));
             else {
                 // Some sanity check on cwd
