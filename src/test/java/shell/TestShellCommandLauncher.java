@@ -48,10 +48,10 @@ public class TestShellCommandLauncher {
         final var CHILD_DIRECTORY_WITH_BLANKS = "child directory with blanks";
         final var SOME_FILE = "some file";
         try {
-            testBlanksTmpDir = Files.createTempDirectory("test_spaces").toFile();
+            testBlanksTmpDir = Files.createTempDirectory("test_blanks").toFile();
             testBlanksTmpDir.deleteOnExit();
 
-            // This will create something like '/tmp/test_spaces_whatever1234/child directory with blanks/some file'
+            // This will create something like '/tmp/test_blanks_whatever1234/child directory with blanks/some file'
             //  or something similar inside c:\Windows\Temp, c:\Users\whatever\AppData\Local\Temp or wherever it sees fit
             var childDirWithBlanks = new File(testBlanksTmpDir, CHILD_DIRECTORY_WITH_BLANKS);
             childDirWithBlanks.mkdir();
