@@ -28,6 +28,7 @@ jobs:
     - name: Setup Maven Action
       uses: s4u/setup-maven-action@v1.11.0
       with:
+        java-version: 21
         maven-version: 3.9.6
 
     - name: Build with Maven
